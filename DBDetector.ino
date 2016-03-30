@@ -4,25 +4,26 @@
 #include <Microduino_Key.h>
 #include <Adafruit_NeoPixel.h>
 
-Key KeyButton(key_pin, INPUT_PULLUP);
+Key KeyButton(keyPin, INPUT_PULLUP);
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, LEDPIN, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   Serial.begin(9600);
-  pinMode(mic_pin, INPUT);
-  pinMode(buzzer_pin, OUTPUT);
-  pinMode(PIN, OUTPUT);
+  pinMode(micPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(LEDPIN, OUTPUT);
   strip.begin();
   strip.show();
 }
 
 void loop() {
-  getDB();
-  analyticDB();
-  updateOLED();
-  updateButton();
-  speakerDoing();
+  
+  double db=getDB();//获得分贝数
+  analyticDB(db);//分析分贝
+  speakerDoing(isAlaram);//蜂鸣器处理
+  updateButton();//按键检测
+  updateOLED();//刷新OLED
 }
 
 void updateOLED() {
@@ -47,32 +48,33 @@ void buzzer() {
         add = false;
       }
     }
-    tone(buzzer_pin, i);
+    tone(buzzerPin, i);
     timer = millis();
   }
 }
 
 
-void getDB() {
-  voice_data = analogRead(mic_pin);
+double getDB() {
+  int voice_data = analogRead(micPin);
   voice_data=map(voice_data,0,1023,0,5);
-  db = (20. * log(10)) * (voice_data / 1.0);
+  double db = (20. * log(10)) * (voice_data / 1.0);
   if(db>recodeDB) {
     recodeDB=db;
   }
-  Serial.println(db);
+  //Serial.println(db);
+  return db;
 }
 
-void analyticDB() {
-    if(db > voice) {
+void analyticDB(double db) {
+  if(db > voice) {
     numNoise++;
-    Serial.println(numNoise);
+    //Serial.println(numNoise);
   }
   if (analytic_time > millis()) analytic_time = millis();
-  if (millis() - analytic_time > INTERVAL_LCD) {
+  if (millis() - analytic_time > INTERVALOLED) {
     if(numNoise>maxNoise) {
-        buzzer_speak = true;
         i = 200;
+        isAlaram= true;
     }
 //     Serial.print(numNoise);
 //    Serial.print("\t");
@@ -83,21 +85,20 @@ void analyticDB() {
 }
 
 void updateButton() {
-  if(KeyButton.read()==SHORT_PRESS) {
-    delay(15);
-    buzzer_speak = false;
-    recodeDB=0;
-  }
-
+    if(KeyButton.read()==SHORT_PRESS) {
+      delay(15);
+      recodeDB=0;
+      isAlaram = false;
+    }
 }
 
-void speakerDoing() {
-  if (buzzer_speak) {
+void speakerDoing(boolean isAlaram) {
+  if (isAlaram) {
     buzzer();
     strip.setPixelColor(0, strip.Color(125, 125, 125));
     strip.show();
   } else {
-    noTone(buzzer_pin);
+    noTone(buzzerPin);
     strip.setPixelColor(0, strip.Color(0, 0, 0));
     strip.show();
   }
