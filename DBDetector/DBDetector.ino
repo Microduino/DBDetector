@@ -2,11 +2,11 @@
 #include <U8glib.h> 
 #include "oled.h"
 #include <Microduino_Key.h>
-#include <Adafruit_NeoPixel.h>
+#include <Microduino_ColorLED.h>
 
-Key KeyButton(keyPin, INPUT_PULLUP);
+DigitalKey KeyButton(keyPin);
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, LEDPIN, NEO_GRB + NEO_KHZ800);
+ColorLED strip = ColorLED(1, LEDPIN);
 
 void setup() {
   Serial.begin(9600);
@@ -85,7 +85,7 @@ void analyticDB(double db) {
 }
 
 void updateButton() {
-    if(KeyButton.read()==SHORT_PRESS) {
+    if(KeyButton.readEvent()==SHORT_PRESS) {
       delay(15);
       recodeDB=0;
       isAlaram = false;
