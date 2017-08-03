@@ -3,9 +3,9 @@ unsigned long analytic_time = millis();
 U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE);//定义OLED连接方式
 #define INTERVAL_OLED 200 //define OLED update duration
 //-------字体设置，大、中、小
-#define setFont_L u8g.setFont(u8g_font_fur25)
-#define setFont_M u8g.setFont(u8g_font_fixed_v0r)
-#define setFont_S u8g.setFont(u8g_font_chikitar)
+#define setFont_L u8g.setFont(u8g_font_timB18)
+#define setFont_M u8g.setFont(u8g_font_timB14)
+#define setFont_S u8g.setFont(u8g_font_timB10)
 
 unsigned long OLEDShowTime = millis(); //OLED refersh timmer
 
